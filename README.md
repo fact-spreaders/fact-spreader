@@ -1,161 +1,91 @@
-# Fact Check Extension Documentation
+# Fact Spreader
 
-## Introduction
+A privacy-first Chrome extension for AI-powered fact-checking. Highlight any text or image on the web and send it to your choice of LLM — cloud or local.
 
-Welcome to the Fact Check Extension Documentation. This website provides comprehensive documentation on how to install, configure, and use the Fact Check Chrome Extension.
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-available-green?logo=google-chrome)](https://chromewebstore.google.com/detail/fact-checker-gpt-connecto/jikiecjhdofccpaejidggiiiejogemni)
+[![Manifest V3](https://img.shields.io/badge/Manifest-V3-orange)](https://developer.chrome.com/docs/extensions/mv3/)
 
-### How does this extension work?
+![Fact Spreader screenshot](images/check_result.png)
 
-The extension streamlines the process of verifying information found on the web.
+## Why Fact Spreader?
 
-- **Selection**: The user selects text or an image on a webpage that they want to check.
-- **Processing**: The extension sends the selected content, along with a fact-checking command and any optional context provided by the user, to a Large Language Model (LLM).
-- **Result**: The LLM analyzes the content and performs a fact check. The result is sent back to the extension, which displays it to the user.
+Most "AI fact-checking" tools are black boxes. Fact Spreader is transparent by design:
 
-### Context for better result
+- **Your choice of LLM** — ChatGPT, Claude, Gemini (cloud) or Ollama, LM Studio (local)
+- **Privacy-first** — local models keep data on your device; no telemetry
+- **Image fact-checking** — right-click any image to verify it
+- **Knowledge graph support** — optional [lightRAG](https://github.com/HKUDS/lightRAG) integration for source-backed verification
+- **Customizable personas** — Scientist, Acerbic Rationalist, or define your own
 
-In some cases, the AI Model needs additional support to provide accurate judgments:
-
-- **Recent Events**: If the events are too new, they might not be part of the model's training data.
-- **Detailed Facts**: Sometimes, more detailed background facts are needed to correctly judge specific claims.
-
-### Are my requests stored?
-
-- **Local Storage**: This extension does not store any data outside of your computer. All configurations and settings are stored locally in your browser.
-- **Model Providers**: Please note that Model Providers may store your requests. If you want to avoid this, you can run models locally (e.g., using Nemotron or MiMo via LM Studio or Ollama), though they may not always provide the same quality of answers as larger cloud-based models.
-
-### How big is the impact on the environment?
-
-AI consumes large amounts of electricity overall. However, this browser extension has a relatively low consumption per check.
-AI operators rarely provide precise information about consumption, but according to OpenAI, an average query consumes about 3 Wh. That is equivalent to driving about 20 meters in an electric car or boiling 30 ml of water.
-
-## Installation
+## Quick Start
 
 ### Install from Chrome Web Store
 
-The easiest way to install the extension is directly from the Chrome Web Store.
+[Install Fact Spreader from the Chrome Web Store](https://chromewebstore.google.com/detail/fact-checker-gpt-connecto/jikiecjhdofccpaejidggiiiejogemni)
 
-[Fact Checker GPT Connector on Chrome Web Store](https://chromewebstore.google.com/detail/fact-checker-gpt-connecto/jikiecjhdofccpaejidggiiiejogemni)
+### Developer Setup
 
-### Install in Developer Mode (from ZIP)
+```bash
+git clone https://github.com/factspreaders/fact-spreader.git
+cd fact-spreader
+npm install
+npm run build        # outputs to dist-chrome/
+```
 
-If you want to install a specific version or contribute to development, you can install the extension in Chrome's developer mode using a ZIP file.
+Then in Chrome:
+1. Open `chrome://extensions/`
+2. Enable "Developer mode"
+3. Click "Load unpacked" → select `dist-chrome/`
 
-Steps:
+### Configure an LLM Provider
 
-1. Clone repo: [https://github.com/caboe/fact-check-extention](https://github.com/caboe/fact-check-extention)
-2. Run the build command: `bun run build`. This will build the extension in the `dist-chrome/` directory.
-3. Open Chrome and go to `chrome://extensions/`.
-4. Enable "Developer mode" using the toggle in the top right corner.
-5. Click the "Load unpacked" button.
-6. Navigate to the `dist-chrome/` folder within the extension's directory and select it.
-7. The extension should now appear in your list of installed extensions.
+1. Right-click the extension icon → "Options"
+2. Choose a provider and enter your API key (for cloud models)
+3. Or configure Ollama/LM Studio endpoint for local models
 
-### Install in Firefox (Developer Edition / Temporary)
+## Architecture
 
-To run the extension in Firefox:
+```
+src/
+├── background/     # Service worker (Manifest V3)
+├── content/        # Content scripts injected into pages
+├── popup/         # Extension popup UI (Svelte)
+├── options/        # Options/settings page
+└── shared/         # Shared utilities, API clients
+```
 
-1. Run the build command: `bun run build:firefox`. This will build the extension in the `dist-firefox/` directory using the Firefox-compatible manifest.
-2. Open Firefox and go to `about:debugging#/runtime/this-firefox`.
-3. Click "Load Temporary Add-on...".
-4. Navigate to the `dist-firefox/` folder and select `manifest.json`.
-5. The extension is now temporarily installed and ready to use.
+- **Manifest V3** service worker architecture
+- **Svelte** frontend with Tailwind CSS
+- **Multi-provider LLM layer** — adapters for OpenAI, Anthropic, Google, Ollama, LM Studio
+- **Context menu integration** — right-click text/image selection
+- **Optional lightRAG** — configurable endpoint for knowledge-graph verification
 
-## Usage
+## Contributing
 
-### Basic User Flow
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-Follow these steps to configure and use the extension:
+### Development Workflow
 
-1.  **First Run**: After installing the extension, open it for the first time. You will see a welcome message.
+```bash
+npm run dev            # watch mode (Chrome)
+npm run build          # production build
+npm run lint           # ESLint check
+npm run test           # Playwright e2e tests
+```
 
-    ![Welcome Message](doc/img/start.png)
+### Reporting Issues
 
-2.  **Configuration**: Confirm the message to proceed. You will be taken to the configuration screen to set up an endpoint.
+- **Bug reports**: use the [bug report template](https://github.com/factspreaders/fact-spreader/issues/new?template=bug_report.md)
+- **Feature requests**: use the [feature request template](https://github.com/factspreaders/fact-spreader/issues/new?template=feature_request.md)
 
-    ![Endpoint Overview](doc/img/endpoint-overview.png)
+## License
 
-3.  **Add Endpoint**: Click on "New Endpoint". This opens the dialog to add a new endpoint.
+[MIT License](LICENSE) — © 2024 Fact Spreaders
 
-    - In this example, we choose the **"openRouter"** template, as it provides many different models.
-    - (Optional) Change the model to `google/gemini-3-pro-preview` for better results.
-    - (Optional) **Web Search**: To let the model search the web for current information, append `:online` to the model name (e.g., `google/gemini-2.0-flash-exp:online`).
-    - Enter your API key.
-    - If the model supports image as input, select the checkbox.
-    - Click "Save" to add the endpoint to your list of available endpoints.
+## Privacy
 
-    ![New Endpoint Filled](doc/img/new-endpoint-filled.png)
-
-4.  **Select Text**: Once the endpoint is saved, the extension is ready to use.
-
-    - Go to a website.
-    - Mark the text you want to check.
-    - Right-click and select **Fact Check marked text**.
-
-    ![Select Text](doc/img/select-text.png)
-
-5.  **Check**: The extension popup will open. Click on **"Check"**.
-
-    ![Ready for Checking](doc/img/ready-for-checking.png)
-
-6.  **Result**: After a few seconds, the result will be shown.
-
-    ![Result](doc/img/result.png)
-
-### Fact Checking Images
-
-You can also fact check images found on websites.
-
-1.  **Select Image**: Right-click on an image you want to check.
-2.  **Context Menu**: Select **🖼️ Fact Check this image** from the context menu.
-3.  **Check**: The extension popup will open with the image selected. Click on **"Check"** to proceed as usual.
-    _(Note: Ensure the selected model supports image input, like `google/gemini-3-pro-preview` or GPT-4o)_
-
-### Configure Roles
-
-You can define the persona and style of the fact-checker by selecting a Role.
-
-#### Select a Role
-
-In the "API Endpoint" section, use the dropdown menu labeled "Role" to select the desired persona (e.g., "Scientist" or "Acerbic Rationalist").
-
-#### Manage Roles
-
-To create or edit roles:
-
-1. Click the settings icon (gear) next to the "Role" label.
-2. The **Role Configuration** window will open.
-3. **Built-in Roles**: You can view the default roles but cannot edit them directly.
-4. **Create Custom Role**:
-   - Click "Add Role" to create a new role from scratch.
-   - Or click "Create from this" on an existing role to use it as a template.
-5. **Edit/Delete**: You can edit or delete any custom roles you have created.
-
-![Result](doc/img/new-role.png)
-
-## Using a local LLM
-
-### Using LM Studio
-
-You can also use a local LM Studio instance as your fact-checking endpoint.
-
-Steps:
-
-1. Install LM Studio on your system by following the official documentation.
-2. Start the server in LM Studio.
-3. Once the server is running, add a new endpoint in the extension configuration.
-4. For the URL, enter the local address of your LM Studio instance, typically `http://localhost:1234/v1/chat/completions`.
-5. Select the appropriate model if prompted.
-6. Save the endpoint.
-
-### Using a Local Ollama Instance
-
-You can also use a local Ollama instance as your fact-checking endpoint.
-
-Steps:
-
-1. Install Ollama on your system by following the official documentation. Make sure, to allow the plugin to access your Ollama instance by running `OLLAMA_ORIGINS=chrome-extension://* && ollama serve`
-2. Once Ollama is running, add a new endpoint in the extension configuration.
-3. For the URL, enter the local address of your Ollama instance, typically `http://localhost:11434/api/chat`.
-4. Select the appropriate model if prompted.
-5. Save the endpoint.
+- All configuration is stored locally in your browser
+- No data is sent to Fact Spreaders servers
+- Cloud LLM requests go directly to your chosen provider (OpenAI, Anthropic, Google)
+- Local LLM requests never leave your device
