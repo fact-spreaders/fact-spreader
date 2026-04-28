@@ -12,6 +12,7 @@ npm run dev        # watch mode — rebuilds on changes
 ```
 
 Load the extension in Chrome:
+
 1. Open `chrome://extensions/`
 2. Enable "Developer mode"
 3. Click "Load unpacked" → select `dist-chrome/`
@@ -58,6 +59,7 @@ npm run build       # verify production build succeeds
 ## Local LLM Testing
 
 To test with local models:
+
 1. Install [Ollama](https://ollama.com) or [LM Studio](https://lmstudio.ai)
 2. Start the local server (Ollama: `ollama serve`, LM Studio: enable API server)
 3. Configure the endpoint in extension options

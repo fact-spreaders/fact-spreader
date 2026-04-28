@@ -4,7 +4,6 @@ about: Suggest a new feature or improvement
 title: ''
 labels: enhancement
 assignees: ''
-
 ---
 
 **Is your feature request related to a problem? Please describe.**
@@ -20,6 +19,7 @@ Any alternative solutions or features you've considered.
 Add any other context, screenshots, or mockups about the feature request here.
 
 **Would you be willing to contribute this feature?**
+
 - [ ] Yes, I'd like to submit a PR
 - [ ] I can help with testing
 - [ ] I can help with design/docs
