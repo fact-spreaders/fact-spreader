@@ -4,18 +4,15 @@
 	interface Props {
 		class?: string
 		onclick?: () => void
-		[key: string]: any
 	}
 
 	let {
 		class: className = '',
 		onclick = () => (popupState.value = popupState.value === 'CONFIG' ? 'DEFAULT' : 'CONFIG'),
-		...restProps
 	}: Props = $props()
 </script>
 
-<!-- svelte-ignore a11y_consider_explicit_label -->
-<button type="button" class={className} {onclick} {...restProps}>
+<button type="button" class={className} {onclick} aria-label="Settings">
 	<svg
 		class="currentColor h-6 w-6"
 		aria-hidden="true"

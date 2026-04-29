@@ -2,18 +2,16 @@
 	interface Props {
 		class?: string
 		onclick: () => void
-		[key: string]: any
 	}
 
-	let { class: className = '', onclick, ...restProps }: Props = $props()
+	let { class: className = '', onclick }: Props = $props()
 </script>
 
-<!-- svelte-ignore a11y_consider_explicit_label -->
 <button
 	type="button"
 	class="variant-filled-primary btn-icon btn-icon-sm {className}"
 	{onclick}
-	{...restProps}
+	aria-label="Close"
 >
 	<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<path

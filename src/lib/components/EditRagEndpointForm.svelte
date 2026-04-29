@@ -9,12 +9,28 @@
 		onsubmit?: () => void
 	}>()
 
-	let title = $state(endpoint?.title || initialData?.title || '')
-	let url = $state(endpoint?.url || initialData?.url || '')
-	let apiKey = $state(endpoint?.apiKey || initialData?.apiKey || '')
-	let mode = $state(endpoint?.mode || initialData?.mode || 'hybrid')
-	let top_k = $state(endpoint?.top_k || initialData?.top_k || 10)
+	let title = $state('')
+	let url = $state('')
+	let apiKey = $state('')
+	let mode = $state('hybrid')
+	let top_k = $state(10)
 	let errorMessage = $state('')
+
+	$effect(() => {
+		if (endpoint) {
+			title = endpoint.title || ''
+			url = endpoint.url || ''
+			apiKey = endpoint.apiKey || ''
+			mode = endpoint.mode || 'hybrid'
+			top_k = endpoint.top_k || 10
+		} else if (initialData) {
+			title = initialData.title || ''
+			url = initialData.url || ''
+			apiKey = initialData.apiKey || ''
+			mode = initialData.mode || 'hybrid'
+			top_k = initialData.top_k || 10
+		}
+	})
 
 	function handleSubmit() {
 		errorMessage = ''

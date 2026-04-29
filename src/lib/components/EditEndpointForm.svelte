@@ -8,12 +8,21 @@
 		endpoint: Endpoint
 	}>()
 
-	let title = $state(endpoint.title)
-	let url = $state(endpoint.url)
-	let apiKey = $state(endpoint.apiKey)
-	let model = $state(endpoint.model)
-	let canProcessImages = $state(endpoint.canProcessImages ?? false)
-	let isInlineRolePlacement = $state(endpoint.rolePlacement === 'inline')
+	let title = $state('')
+	let url = $state('')
+	let apiKey = $state('')
+	let model = $state('')
+	let canProcessImages = $state(false)
+	let isInlineRolePlacement = $state(false)
+
+	$effect(() => {
+		title = endpoint.title
+		url = endpoint.url
+		apiKey = endpoint.apiKey
+		model = endpoint.model
+		canProcessImages = endpoint.canProcessImages ?? false
+		isInlineRolePlacement = endpoint.rolePlacement === 'inline'
+	})
 
 	function handleSubmit() {
 		const updatedEndpoint: Endpoint = {

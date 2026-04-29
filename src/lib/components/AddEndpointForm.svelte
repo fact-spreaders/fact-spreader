@@ -6,13 +6,24 @@
 	let { initialEndpoint } = $props<{ initialEndpoint?: Endpoint }>()
 
 	let title: string = $state('')
-	let url: string = $state(initialEndpoint?.url ?? '')
-	let apiKey: string = $state(initialEndpoint?.apiKey ?? '')
+	let url: string = $state('')
+	let apiKey: string = $state('')
 	let apiKeyInput: HTMLInputElement
 	let selectedValue: string | undefined = $state(undefined)
-	let model = $state(initialEndpoint?.model ?? '')
-	let canProcessImages = $state(initialEndpoint?.canProcessImages ?? false)
-	let isInlineRolePlacement = $state(initialEndpoint?.rolePlacement === 'inline')
+	let model = $state('')
+	let canProcessImages = $state(false)
+	let isInlineRolePlacement = $state(false)
+
+	$effect(() => {
+		if (initialEndpoint) {
+			title = initialEndpoint.title || ''
+			url = initialEndpoint.url || ''
+			apiKey = initialEndpoint.apiKey || ''
+			model = initialEndpoint.model || ''
+			canProcessImages = initialEndpoint.canProcessImages || false
+			isInlineRolePlacement = initialEndpoint.rolePlacement === 'inline'
+		}
+	})
 
 	type EndpointTemplate = Omit<Endpoint, 'apiKey' | 'canProcessImages'> & { apiKeyUrl?: string }
 	type EndpointTemplateMap = Record<string, EndpointTemplate>
@@ -159,7 +170,6 @@
 		<span class="flex items-center">
 			{L.apiKey()}
 			{#if selectedValue && endpointTemplateMap[selectedValue]?.apiKeyUrl}
-				<!-- svelte-ignore a11y_consider_explicit_label -->
 				<a
 					href={endpointTemplateMap[selectedValue].apiKeyUrl}
 					target="_blank"

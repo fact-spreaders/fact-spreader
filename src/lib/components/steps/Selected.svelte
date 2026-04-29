@@ -313,9 +313,6 @@
 				placeholder={L.selectedText()}
 				data-testid="selected-text-input"
 			></textarea>
-
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
 		{:else if isSelectedText(unifiedStorage.value.selectedContent)}
 			<textarea
 				id="selected-text"
