@@ -8,6 +8,7 @@ import handleStreamResponse from './handleStreamResponse.svelte'
 import unifiedStorage from './unifiedStorage.svelte'
 
 let currentAbortController: AbortController | null = null
+let currentSignal: AbortSignal | null = null
 
 export default async function checkFact() {
 	// Abort any ongoing request
@@ -18,7 +19,8 @@ export default async function checkFact() {
 
 	// Create a new AbortController for this request
 	currentAbortController = new AbortController()
-	const signal = currentAbortController.signal
+	currentSignal = currentAbortController.signal
+	const signal = currentSignal
 
 	if (!endpoints.value.selected) {
 		view.step = 1
@@ -69,7 +71,11 @@ export default async function checkFact() {
 		content = unifiedStorage.value.selectedContent.text
 	}
 
-	if (!content) throw new Error('No content selected')
+	if (!content) {
+		unifiedStorage.value.result = 'No content selected'
+		apiRequest.value.state = 'ERROR'
+		return
+	}
 
 	type RequestBody = {
 		model?: string
@@ -199,7 +205,7 @@ export default async function checkFact() {
 							ragContext +=
 								'Entities:\n' +
 								r!.data.entities
-									.map((e: any) => `- ${e.entity_name}: ${e.description}`)
+									.map((e: { entity_name: string; description: string }) => `- ${e.entity_name}: ${e.description}`)
 									.join('\n') +
 								'\n'
 						}
@@ -207,14 +213,16 @@ export default async function checkFact() {
 							ragContext +=
 								'Relationships:\n' +
 								r!.data.relationships
-									.map((rel: any) => `- ${rel.src_id} -> ${rel.tgt_id}: ${rel.description}`)
+									.map((rel: { src_id: string; tgt_id: string; description: string }) => `- ${rel.src_id} -> ${rel.tgt_id}: ${rel.description}`)
 									.join('\n') +
 								'\n'
 						}
 						if (r!.data.chunks && r!.data.chunks.length) {
 							ragContext +=
 								'Chunks:\n' +
-								r!.data.chunks.map((c: any) => `- ${c.content_with_weight}`).join('\n') +
+								r!.data.chunks
+									.map((c: { content_with_weight: string }) => `- ${c.content_with_weight}`)
+									.join('\n') +
 								'\n'
 						}
 					})
@@ -229,7 +237,7 @@ export default async function checkFact() {
 		const response = await fetchModel(signal, ragContext)
 
 		// Check if the request was aborted before proceeding
-		if (signal.aborted) {
+		if (currentSignal?.aborted) {
 			console.log('Fact check request aborted before handling response.')
 			apiRequest.value.state = 'EMPTY' // Reset state to EMPTY
 			return
@@ -249,12 +257,13 @@ export default async function checkFact() {
 					errorResponse[0]?.error?.message || errorResponse.error?.message || errorResponse.message
 				if (message) {
 					unifiedStorage.value.result = message
-					apiRequest.value.state = 'ERROR'
-					return
+				} else {
+					unifiedStorage.value.result = `HTTP ${response.status}: ${response.statusText}`
 				}
-			} catch (e) {
-				unifiedStorage.value.result = `HTTP-Error!  ${e}`
+			} catch {
+				unifiedStorage.value.result = `HTTP ${response.status}: ${response.statusText}`
 			}
+			apiRequest.value.state = 'ERROR'
 			return
 		}
 
@@ -274,8 +283,9 @@ export default async function checkFact() {
 		}
 	} finally {
 		// Clear the controller if this specific request instance finished or was aborted
-		if (currentAbortController?.signal === signal) {
+		if (currentAbortController?.signal === currentSignal) {
 			currentAbortController = null
+			currentSignal = null
 		}
 	}
 }

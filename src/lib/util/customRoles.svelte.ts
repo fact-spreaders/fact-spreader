@@ -16,16 +16,16 @@ class CustomRolesStorage extends PersistState<ICustomRolesState> {
 		$effect.root(() => {
 			$effect(() => {
 				let hasChanges = false
-				const migratedRoles = this.value.customRoles.map((role: any) => {
+				const migratedRoles = this.value.customRoles.map((role: { name?: string; id?: string; role?: string }) => {
 					if (role.name && !role.id) {
 						hasChanges = true
-						return { ...role, id: role.name, name: undefined }
+						return { id: role.name, role: role.role ?? role.name ?? '' }
 					}
-					return role
+					return role as Role
 				})
 
 				if (hasChanges) {
-					this.value = { ...this.value, customRoles: migratedRoles }
+					this.value = { ...this.value, customRoles: migratedRoles as Role[] }
 				}
 			})
 		})

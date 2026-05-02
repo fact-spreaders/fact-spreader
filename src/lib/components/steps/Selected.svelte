@@ -28,20 +28,21 @@
 				parsedUrl.protocol === 'chrome-extension:' ||
 				parsedUrl.hostname === 'chrome.google.com' // Web Store
 			)
-		} catch (e) {
+		} catch {
 			// Invalid URL, treat as restricted
 			return true
 		}
 	}
 
 	$effect(() => {
-		const checkPendingContent = async (items: Record<string, any>) => {
-			const pendingImage = items?.pendingContextMenuImage
-			const pendingText = items?.pendingContextMenuText
-			const pendingContext = items?.pendingContextMenuContext
+		const checkPendingContent = async (items: Record<string, unknown>) => {
+			const pendingImage = items?.pendingContextMenuImage as string | undefined
+			const pendingText = items?.pendingContextMenuText as string | undefined
+			const pendingContext = items?.pendingContextMenuContext as string | undefined
+			const storage = chrome.storage.session ? chrome.storage.session : chrome.storage.local
 
 			if (pendingContext) {
-				await chrome.storage.session.remove('pendingContextMenuContext')
+				await storage.remove('pendingContextMenuContext')
 				unifiedStorage.value.contextEnabled = true
 				unifiedStorage.value.contextText = pendingContext
 				unifiedStorage.value.result = undefined
@@ -52,7 +53,7 @@
 
 			if (pendingImage) {
 				// We have a pending image, use it!
-				await chrome.storage.session.remove('pendingContextMenuImage')
+				await storage.remove('pendingContextMenuImage')
 				try {
 					const processed = await processImage(pendingImage)
 					unifiedStorage.value.selectedContent = { image: processed }
@@ -65,7 +66,7 @@
 				return
 			} else if (pendingText) {
 				// We have pending text from context menu, use it!
-				await chrome.storage.session.remove('pendingContextMenuText')
+				await storage.remove('pendingContextMenuText')
 				unifiedStorage.value.selectedContent = { text: pendingText }
 				unifiedStorage.value.result = undefined
 				apiRequest.value.state = 'EMPTY'
@@ -76,30 +77,24 @@
 
 		// First check if there is a pending image or text from context menu
 		const getPendingContent = async () => {
-			let items: Record<string, any> = {}
-			if (chrome.storage.session) {
-				items = await chrome.storage.session.get([
-					'pendingContextMenuImage',
-					'pendingContextMenuText',
-					'pendingContextMenuContext',
-				])
-			} else {
-				items = await chrome.storage.local.get([
-					'pendingContextMenuImage',
-					'pendingContextMenuText',
-					'pendingContextMenuContext',
-				])
-			}
+			let items: Record<string, unknown> = {}
+			const storage = chrome.storage.session ? chrome.storage.session : chrome.storage.local
+
+			items = await storage.get([
+				'pendingContextMenuImage',
+				'pendingContextMenuText',
+				'pendingContextMenuContext',
+			])
 
 			await checkPendingContent(items)
 			// Note: Automatic text selection from page is disabled - user must manually enter text
 		}
 		getPendingContent()
 
-		// Listen for changes in session storage to handle race condition where popup opens before storage is set
+		// Listen for changes in storage to handle race condition where popup opens before storage is set
 		const listener = (changes: Record<string, chrome.storage.StorageChange>, areaName: string) => {
 			if (areaName === 'session' || areaName === 'local') {
-				const items: Record<string, any> = {}
+				const items: Record<string, unknown> = {}
 				if (changes.pendingContextMenuImage?.newValue)
 					items.pendingContextMenuImage = changes.pendingContextMenuImage.newValue
 				if (changes.pendingContextMenuText?.newValue)
@@ -112,6 +107,7 @@
 				}
 			}
 		}
+
 		chrome.storage?.onChanged.addListener(listener)
 
 		return () => {
@@ -177,8 +173,8 @@
 	}
 
 	$effect(() => {
-		endpoints.value.selected
-		endpointSelectEl
+		void endpoints.value.selected
+		void endpointSelectEl
 		selectCurrent()
 	})
 
@@ -205,37 +201,8 @@
 		})
 	}
 
-	function textSelectOnPage(textSelectMode: boolean) {
-		chrome.tabs?.query({ active: true, currentWindow: true }, (tabs) => {
-			const tab = tabs[0]
-			if (tab?.id !== undefined && !isRestrictedUrl(tab.url)) {
-				chrome.tabs.sendMessage(
-					tab.id,
-					{
-						action: textSelectMode ? 'enableTextSelect' : 'disableTextSelect',
-					},
-					() => {
-						if (chrome.runtime.lastError) {
-							console.warn(
-								`Fact Check: Could not toggle text select mode on tab ${tab.id} (${tab.url}): ${chrome.runtime.lastError.message}`,
-							)
-						}
-					},
-				)
-			} else if (tab?.id !== undefined && isRestrictedUrl(tab.url)) {
-				// console.log(`Fact Check: Not attempting text select on restricted URL: ${tab.url}`);
-			}
-		})
-	}
-
-	function selectImageOnPage(e: Event) {
+	function selectImageOnPage() {
 		imageSelectOnPage(true)
-		window.close()
-	}
-
-	function selectTextOnPage(e: Event) {
-		imageSelectOnPage(false)
-		textSelectOnPage(true)
 		window.close()
 	}
 
