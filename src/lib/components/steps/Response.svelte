@@ -32,7 +32,7 @@
 	}
 
 	$effect(() => {
-		unifiedStorage.value.result
+		void unifiedStorage.value.result
 		autoGrow()
 	})
 

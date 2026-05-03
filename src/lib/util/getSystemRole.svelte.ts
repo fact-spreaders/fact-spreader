@@ -1,4 +1,3 @@
-import L from '../state/L.svelte'
 import { roleTemplate, basicRoles } from './role.svelte'
 import customRoles from './customRoles.svelte'
 import unifiedStorage from './unifiedStorage.svelte'

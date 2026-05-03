@@ -5,7 +5,6 @@
 	import apiRequest from '../../state/apiRequest.svelte'
 	import endpoints from '../../state/endpoints.svelte'
 	import L from '../../state/L.svelte'
-	import view from '../../state/view.svelte'
 	import unifiedStorage from '../../util/unifiedStorage.svelte'
 	import ConnectionIcon from '../icons/ConnectionIcon.svelte'
 	import Settings from '../icons/SettingsIcon.svelte'
@@ -15,10 +14,9 @@
 
 	interface Props {
 		open: boolean
-		checkFact: () => Promise<void>
 	}
 
-	let { open, checkFact }: Props = $props()
+	let { open }: Props = $props()
 
 	let endpointSelect: HTMLSelectElement | null = $state(null)
 
@@ -28,10 +26,6 @@
 	$effect(() => {
 		apiRequest.value.rolePlacement = endpoints.value.selected?.rolePlacement ?? 'system'
 	})
-
-	if (unifiedStorage.value.selectedContent && view.step === 0) {
-		view.step = 1
-	}
 
 	let isImageSelected = $derived(isSelectedImage(unifiedStorage.value.selectedContent))
 

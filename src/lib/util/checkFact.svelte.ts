@@ -205,7 +205,10 @@ export default async function checkFact() {
 							ragContext +=
 								'Entities:\n' +
 								r!.data.entities
-									.map((e: { entity_name: string; description: string }) => `- ${e.entity_name}: ${e.description}`)
+									.map(
+										(e: { entity_name: string; description: string }) =>
+											`- ${e.entity_name}: ${e.description}`,
+									)
 									.join('\n') +
 								'\n'
 						}
@@ -213,7 +216,10 @@ export default async function checkFact() {
 							ragContext +=
 								'Relationships:\n' +
 								r!.data.relationships
-									.map((rel: { src_id: string; tgt_id: string; description: string }) => `- ${rel.src_id} -> ${rel.tgt_id}: ${rel.description}`)
+									.map(
+										(rel: { src_id: string; tgt_id: string; description: string }) =>
+											`- ${rel.src_id} -> ${rel.tgt_id}: ${rel.description}`,
+									)
 									.join('\n') +
 								'\n'
 						}

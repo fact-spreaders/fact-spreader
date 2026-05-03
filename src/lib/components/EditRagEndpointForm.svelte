@@ -1,7 +1,6 @@
 <script lang="ts">
 	import ragEndpoints, { type RagEndpoint } from '../state/ragEndpoints.svelte'
 	import L from '../state/L.svelte'
-	import view from '../state/view.svelte'
 
 	const { endpoint, initialData, onsubmit } = $props<{
 		endpoint?: RagEndpoint

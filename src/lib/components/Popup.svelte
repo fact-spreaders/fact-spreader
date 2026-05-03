@@ -8,7 +8,6 @@
 	import Introduction from './Introduction.svelte'
 	import RoleConfig from './RoleConfig.svelte'
 	import RagConfig from './RagConfig.svelte'
-	import view from '../state/view.svelte'
 
 	const hasSeenIntroduction = new PersistState<boolean>('hasSeenIntroduction', false)
 

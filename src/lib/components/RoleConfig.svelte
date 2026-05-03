@@ -48,25 +48,16 @@
 		}
 	}
 
-	function copyRole(index: number) {
-		const copiedRole = customRoles.copyRole(index)
-		customRoles.addRole(copiedRole)
+	function getRoleName(role: Role): string {
+		if (role.id === 'scientist') return L.scientistName()
+		if (role.id === 'satirist') return L.satiristName()
+		return role.id
 	}
 
 	function createFromRole(role: Role) {
 		newRoleName = `${getRoleName(role)} (Custom)`
 		newRoleContent = role.role
 		showAddForm = true
-	}
-
-	function isBasicRole(roleId: string): boolean {
-		return basicRoles.some((role) => role.id === roleId)
-	}
-
-	function getRoleName(role: Role): string {
-		if (role.id === 'scientist') return L.scientistName()
-		if (role.id === 'satirist') return L.satiristName()
-		return role.id
 	}
 </script>
 

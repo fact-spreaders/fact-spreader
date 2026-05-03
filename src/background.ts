@@ -6,7 +6,7 @@ import es from './i18n/es'
 import fr from './i18n/fr'
 import pt from './i18n/pt'
 
-type Locale = 'en' | 'de' | 'es' | 'fr' | 'pt'
+type Locale = 'en' | 'de' | 'es' | 'fr' | 'pt' // eslint-disable-line @typescript-eslint/no-unused-vars
 
 function getTranslations() {
 	const uiLang = chrome.i18n.getUILanguage()
@@ -66,7 +66,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 						action: 'contextMenuImageSelected',
 						src: info.srcUrl,
 					},
-					(response) => {
+					() => {
 						if (chrome.runtime.lastError) {
 							console.warn('Could not send message to tab:', chrome.runtime.lastError.message)
 						}
